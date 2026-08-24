@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Configuration de l'unité de persistance JPA 3.1 (Jakarta Persistence)
+    Système de Gestion des Cotisations UCAD
+-->
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <!-- 
+        Unité de persistance 'CotisationPU' configurée en transaction-type="RESOURCE_LOCAL".
+        La gestion des transactions est effectuée manuellement via EntityTransaction.
+    -->
+    <persistence-unit name="CotisationPU" transaction-type="RESOURCE_LOCAL">
+        <!-- Fournisseur ORM JPA : Hibernate 6.x -->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Déclaration explicite des entités JPA -->
+        <class>sn.ucad.cotisations.model.Utilisateur</class>
+        <class>sn.ucad.cotisations.model.Membre</class>
+        <class>sn.ucad.cotisations.model.Cotisation</class>
+        <class>sn.ucad.cotisations.model.Amende</class>
+        <class>sn.ucad.cotisations.model.EmailLog</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+
+        <properties>
+            <!-- 
+                ==========================================================
+                POINT DE CONFIGURATION BDD : Paramètres de connexion MySQL
+                ==========================================================
+                - Driver : com.mysql.cj.jdbc.Driver (MySQL Connector/J 8.x)
+                - URL : Base 'cotisations_db' sur localhost:3306
+                - User/Password : A ajuster selon votre installation MySQL
+            -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:cotisations_db;DB_CLOSE_DELAY=-1;MODE=MySQL"/>
+            <property name="jakarta.persistence.jdbc.user" value="sa"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+
+            <!-- 
+                ==========================================================
+                PARAMÈTRES HIBERNATE 6
+                ==========================================================
+                - Dialecte MySQL 8
+                - Auto-mise à jour des tables BDD (hbm2ddl.auto = update)
+                - Affichage et formatage des requêtes SQL générées
+            -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+
+            <!-- Pool de connexions JDBC et contexte de session -->
+            <property name="hibernate.connection.pool_size" value="10"/>
+            <property name="hibernate.current_session_context_class" value="thread"/>
+        </properties>
+    </persistence-unit>
+</persistence>

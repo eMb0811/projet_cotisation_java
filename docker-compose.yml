@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    environment:
+      - TZ=Africa/Dakar
+    volumes:
+      - data:/var/lib/h2db
+volumes:
+  data:
