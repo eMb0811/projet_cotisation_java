@@ -27,7 +27,7 @@ jobs:
 
       - name: Build de l'image Docker locale
         run: |
-          docker build -t ucad-cotisations-app:${{ github.sha }} ./app
+          docker build -t ucad-cotisations-app:${{ github.sha }} .
 
       - name: Scan de vulnérabilités Trivy (Shift-Left CI)
         uses: aquasecurity/trivy-action@master
@@ -63,7 +63,7 @@ jobs:
           REPOSITORY: ucad-cotisations-app
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ./app
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:latest
