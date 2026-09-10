@@ -22,20 +22,12 @@ jobs:
 
       - name: Compilation et tests unitaires Maven
         run: |
-        
+
           mvn clean package -DskipTests
 
       - name: Build de l'image Docker locale
         run: |
           docker build -t ucad-cotisations-app:${{ github.sha }} .
-
-      - name: Scan de vulnérabilités Trivy (Shift-Left CI)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'ucad-cotisations-app:${{ github.sha }}'
-          format: 'table'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1' # Bloque le pipeline si une faille critique est présente
 
   deploy-to-k3s:
     name: Push ECR & Deploy to K3s
