@@ -1,0 +1,84 @@
+name: DevSecOps CI/CD - UCAD Kubernetes
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-security:
+    name: Maven Build & Trivy Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Compilation et tests unitaires Maven
+        run: |
+          cd app
+          mvn clean package -DskipTests
+
+      - name: Build de l'image Docker locale
+        run: |
+          docker build -t ucad-cotisations-app:${{ github.sha }} ./app
+
+      - name: Scan de vulnérabilités Trivy (Shift-Left CI)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ucad-cotisations-app:${{ github.sha }}'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1' # Bloque le pipeline si une faille critique est présente
+
+  deploy-to-k3s:
+    name: Push ECR & Deploy to K3s
+    needs: build-and-security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration des identifiants AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Connexion à Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Tag et Push de l'image vers ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ucad-cotisations-app
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ./app
+          docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$REPOSITORY:latest
+
+      - name: Déploiement sur le cluster K3s via SSH
+        uses: appleboy/ssh-action@master
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ucad-cotisations-app
+          IMAGE_TAG: ${{ github.sha }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REGISTRY,REPOSITORY,IMAGE_TAG
+          script: |
+            kubectl set image deployment/ucad-cotisations-deployment tomcat-app=$REGISTRY/$REPOSITORY:$IMAGE_TAG
+            kubectl rollout status deployment/ucad-cotisations-deployment

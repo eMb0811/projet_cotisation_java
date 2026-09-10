@@ -33,10 +33,10 @@
                 - URL : Base 'cotisations_db' sur localhost:3306
                 - User/Password : A ajuster selon votre installation MySQL
             -->
-            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:cotisations_db;DB_CLOSE_DELAY=-1;MODE=MySQL"/>
-            <property name="jakarta.persistence.jdbc.user" value="sa"/>
-            <property name="jakarta.persistence.jdbc.password" value=""/>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+			<property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/cotisations_db?createDatabaseIfNotExist=true&amp;useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"/>
+			<property name="jakarta.persistence.jdbc.user" value="root"/>
+			<property name="jakarta.persistence.jdbc.password" value="08111303"/>
 
             <!-- 
                 ==========================================================
@@ -46,12 +46,46 @@
                 - Auto-mise à jour des tables BDD (hbm2ddl.auto = update)
                 - Affichage et formatage des requêtes SQL générées
             -->
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.use_sql_comments" value="true"/>
 
+            <!-- Pool de connexions JDBC et contexte de session -->
+            <property name="hibernate.connection.pool_size" value="10"/>
+            <property name="hibernate.current_session_context_class" value="thread"/>
+        </properties>
+    </persistence-unit>
+    <!-- 
+        Unité de persistance PostgreSQL 'ucadCotisationsPU' (utilisée notamment pour Kubernetes / Production)
+    -->
+    <persistence-unit name="ucadCotisationsPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <!-- Déclaration explicite des entités JPA -->
+        <class>sn.ucad.cotisations.model.Utilisateur</class>
+        <class>sn.ucad.cotisations.model.Membre</class>
+        <class>sn.ucad.cotisations.model.Cotisation</class>
+        <class>sn.ucad.cotisations.model.Amende</class>
+        <class>sn.ucad.cotisations.model.EmailLog</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+
+        <properties>
+            <!-- Driver JDBC PostgreSQL -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            
+            <!-- Valeurs par défaut ou surchargées dynamiquement -->
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/cotisations_db"/>
+            <property name="jakarta.persistence.jdbc.user" value="postgres"/>
+            <property name="jakarta.persistence.jdbc.password" value="postgres"/>
+            
+            <!-- Dialecte Hibernate pour PostgreSQL -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
+            
             <!-- Pool de connexions JDBC et contexte de session -->
             <property name="hibernate.connection.pool_size" value="10"/>
             <property name="hibernate.current_session_context_class" value="thread"/>

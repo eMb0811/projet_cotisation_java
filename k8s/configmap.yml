@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ucad-config
+data:
+  tz: "Africa/Dakar"
+  db_url: "jdbc:postgresql://10.0.1.42:5432/cotisations_db"

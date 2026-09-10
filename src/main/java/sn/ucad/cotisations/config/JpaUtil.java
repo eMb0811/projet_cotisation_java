@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class JpaUtil {
 
     private static final Logger LOGGER = Logger.getLogger(JpaUtil.class.getName());
-    private static final String PERSISTENCE_UNIT = "CotisationPU";
+    private static final String DEFAULT_PERSISTENCE_UNIT = "CotisationPU";
     private static EntityManagerFactory emf;
 
     private JpaUtil() { }
@@ -28,14 +28,48 @@ public class JpaUtil {
     public static synchronized void init() {
         if (emf == null || !emf.isOpen()) {
             try {
-                LOGGER.info("Initialisation de l'EntityManagerFactory (PU: " + PERSISTENCE_UNIT + ")...");
-                emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+                String puName = getEnvOrProperty("PERSISTENCE_UNIT", DEFAULT_PERSISTENCE_UNIT);
+
+                // Si DB_URL est définie (ex: environnement Kubernetes) et que l'unité par défaut est active,
+                // on bascule automatiquement sur ucadCotisationsPU si l'URL pointe vers postgresql
+                String dbUrl = getEnvOrProperty("DB_URL", null);
+                if (DEFAULT_PERSISTENCE_UNIT.equals(puName) && dbUrl != null && dbUrl.contains("postgresql")) {
+                    puName = "ucadCotisationsPU";
+                }
+
+                LOGGER.info("Initialisation de l'EntityManagerFactory (PU: " + puName + ")...");
+
+                java.util.Map<String, Object> overrides = new java.util.HashMap<>();
+                if (dbUrl != null && !dbUrl.isBlank()) {
+                    overrides.put("jakarta.persistence.jdbc.url", dbUrl);
+                }
+                String dbUser = getEnvOrProperty("DB_USER", null);
+                if (dbUser != null && !dbUser.isBlank()) {
+                    overrides.put("jakarta.persistence.jdbc.user", dbUser);
+                }
+                String dbPassword = getEnvOrProperty("DB_PASSWORD", null);
+                if (dbPassword != null && !dbPassword.isBlank()) {
+                    overrides.put("jakarta.persistence.jdbc.password", dbPassword);
+                }
+
+                emf = overrides.isEmpty()
+                        ? Persistence.createEntityManagerFactory(puName)
+                        : Persistence.createEntityManagerFactory(puName, overrides);
+
                 LOGGER.info("EntityManagerFactory initialisée avec succès.");
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Échec de l'initialisation JPA", e);
                 throw new RuntimeException("Impossible de créer l'EntityManagerFactory", e);
             }
         }
+    }
+
+    private static String getEnvOrProperty(String key, String defaultValue) {
+        String value = System.getenv(key);
+        if (value == null || value.isBlank()) {
+            value = System.getProperty(key);
+        }
+        return (value != null && !value.isBlank()) ? value : defaultValue;
     }
 
     /**

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ucad-cotisations-deployment
+  labels:
+    app: ucad-cotisations
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ucad-cotisations
+  template:
+    metadata:
+      labels:
+        app: ucad-cotisations
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: tomcat-app
+          image: 108631844737.dkr.ecr.us-east-1.amazonaws.com/ucad-cotisations-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: ucad-config
+                  key: tz
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ucad-config
+                  key: db_url
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: ucad-secret
+                  key: db_user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ucad-secret
+                  key: db_password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20

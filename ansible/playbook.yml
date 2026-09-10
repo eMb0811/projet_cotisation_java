@@ -1,0 +1,133 @@
+---
+# ==============================================================================
+# 1. CONFIGURATION DU NŒUD BASE DE DONNÉES (PostgreSQL)
+# ==============================================================================
+- name: "Configurer le serveur de base de données PostgreSQL"
+  hosts: db
+  become: yes
+  tasks:
+    - name: "Mettre à jour le cache APT et installer PostgreSQL"
+      apt:
+        name:
+          - postgresql
+          - postgresql-contrib
+          - python3-psycopg2
+          - acl
+        state: present
+        update_cache: yes
+
+    - name: "Détecter le répertoire de configuration de PostgreSQL"
+      find:
+        paths: /etc/postgresql
+        patterns: "postgresql.conf"
+        recurse: yes
+      register: pg_conf_search
+
+    - name: "Définir les chemins de configuration"
+      set_fact:
+        pg_conf_path: "{{ pg_conf_search.files[0].path }}"
+        pg_hba_path: "{{ pg_conf_search.files[0].path | dirname }}/pg_hba.conf"
+
+    - name: "Configurer listen_addresses pour écouter sur les interfaces réseau"
+      lineinfile:
+        path: "{{ pg_conf_path }}"
+        regexp: "^#?listen_addresses\\s*=.*"
+        line: "listen_addresses = '*'"
+      notify: Redémarrer PostgreSQL
+
+    - name: "Autoriser les connexions depuis le sous-réseau VPC dans pg_hba.conf"
+      lineinfile:
+        path: "{{ pg_hba_path }}"
+        line: "host    {{ db_name }}    {{ db_user }}    10.0.0.0/16    md5"
+      notify: Redémarrer PostgreSQL
+
+    - name: "S'assurer que PostgreSQL est démarré et activé"
+      service:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: "Créer la base de données applicative"
+      postgresql_db:
+        name: "{{ db_name }}"
+        state: present
+      become_user: postgres
+
+    - name: "Créer l'utilisateur applicatif avec ses privilèges"
+      postgresql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        priv: "ALL"
+        state: present
+      become_user: postgres
+
+  handlers:
+    - name: "Redémarrer PostgreSQL"
+      service:
+        name: postgresql
+        state: restarted
+
+# ==============================================================================
+# 2. CONFIGURATION DU NŒUD APPLICATIF (Cluster Kubernetes K3s)
+# ==============================================================================
+- name: "Installer et initialiser le cluster Kubernetes K3s"
+  hosts: app
+  become: yes
+  tasks:
+    - name: "Installer les dépendances de base"
+      apt:
+        name:
+          - curl
+          - git
+          - ca-certificates
+        state: present
+        update_cache: yes
+
+    - name: "Mettre à jour les certificats CA"
+      command: update-ca-certificates --fresh
+
+    - name: "Créer un .curlrc temporaire pour autoriser le téléchargement GitHub"
+      copy:
+        content: "insecure\n"
+        dest: /root/.curlrc
+        mode: '0600'
+
+    - name: "Télécharger et installer K3s via le script officiel"
+      shell: "curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION='v1.30.4+k3s1' INSTALL_K3S_EXEC='--write-kubeconfig-mode 644' sh -"
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: "Nettoyer le .curlrc temporaire après installation"
+      file:
+        path: /root/.curlrc
+        state: absent
+
+    - name: "S'assurer que le service K3s est démarré et activé"
+      service:
+        name: k3s
+        state: started
+        enabled: yes
+
+    - name: "Créer le dossier .kube pour l'utilisateur ubuntu"
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: "Copier kubeconfig vers le profil de l'utilisateur ubuntu"
+      copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: "Créer un alias k=kubectl dans le .bashrc"
+      lineinfile:
+        path: /home/ubuntu/.bashrc
+        line: "alias k='kubectl'"
+        state: present

@@ -1,0 +1,23 @@
+# --- Terraform ---
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+
+# --- Maven / Java ---
+**/target/
+*.class
+*.war
+*.jar
+
+# --- Environnements & Clés ---
+*.pem
+*.key
+.env
+
+# --- IDEs & Système ---
+.idea/
+*.iml
+.vscode/
+.DS_Store
