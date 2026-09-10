@@ -56,7 +56,7 @@ resource "aws_security_group" "app_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["41.214.49.183/32"] # A restreindre a votre IP en production
+    cidr_blocks = ["0.0.0.0/0"] # A restreindre a votre IP en production
   }
 
   ingress {
