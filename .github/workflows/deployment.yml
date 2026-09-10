@@ -22,7 +22,6 @@ jobs:
 
       - name: Compilation et tests unitaires Maven
         run: |
-          cd app
           mvn clean package -DskipTests
 
       - name: Build de l'image Docker locale
