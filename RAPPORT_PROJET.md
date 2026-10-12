@@ -211,10 +211,3 @@ L'application est immédiatement disponible sur : **`http://localhost:8081/`**
 3. Dans la configuration du serveur (onglet *Environment*), définir les variables `DB_URL`, `DB_USER`, `DB_PASSWORD`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`.
 4. Démarrer Tomcat et accéder à : **`http://localhost:8080/`** (ou `/cotisations-app/`).
 
-### 🔑 Identifiants Administrateur par Défaut :
-- **E-mail** : `admin@ucad.sn`
-- **Mot de passe** : `admin123`
-
----
-
-*Document mis à jour pour consigner l'intégralité des réalisations techniques, architecturales et graphiques du projet.*
