@@ -17,9 +17,8 @@ FROM tomcat:10.1-jdk17-temurin
 # Nettoyer les applications par défaut de Tomcat
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Déployer l'application en tant que ROOT (accès direct sur /) et cotisations-app (/cotisations-app)
+# Déployer l'application en tant que ROOT (accès direct sur /)
 COPY --from=builder /build/target/cotisations-app.war /usr/local/tomcat/webapps/ROOT.war
-COPY --from=builder /build/target/cotisations-app.war /usr/local/tomcat/webapps/cotisations-app.war
 
 # Exposer le port HTTP standard de Tomcat
 EXPOSE 8080

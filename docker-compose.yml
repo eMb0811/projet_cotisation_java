@@ -1,12 +1,36 @@
 services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-cotisations_db}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-votre_mot_de_passe}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-votre_mot_de_passe}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
   app:
     build: .
     ports:
       - "8081:8080"
-    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
-      - TZ=Africa/Dakar
-    volumes:
-      - data:/var/lib/h2db
+      TZ: Africa/Dakar
+      DB_URL: ${DB_URL:-jdbc:mysql://db:3306/cotisations_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-votre_mot_de_passe}
+      SMTP_HOST: ${SMTP_HOST:-sandbox.smtp.mailtrap.io}
+      SMTP_PORT: ${SMTP_PORT:-2525}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@ucad.sn}
+
 volumes:
-  data:
+  mysql_data:

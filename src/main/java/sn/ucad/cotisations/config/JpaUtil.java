@@ -12,55 +12,73 @@ import java.util.logging.Logger;
 
 /**
  * Utilitaire JPA : gère le cycle de vie de l'EntityManagerFactory (singleton).
- * La factory est initialisée une seule fois au démarrage via AppInitializerListener.
+ * La factory est initialisée au démarrage via AppInitializerListener avec un mécanisme de retry
+ * pour attendre la disponibilité de la base de données (notamment sous Docker).
  */
 public class JpaUtil {
 
     private static final Logger LOGGER = Logger.getLogger(JpaUtil.class.getName());
     private static final String DEFAULT_PERSISTENCE_UNIT = "CotisationPU";
+    private static final int MAX_RETRIES = 12;
+    private static final long RETRY_DELAY_MS = 3000;
     private static EntityManagerFactory emf;
 
     private JpaUtil() { }
 
     /**
-     * Initialise la factory JPA. Appelé par AppInitializerListener au démarrage.
+     * Initialise la factory JPA. Tente plusieurs fois de se connecter si la base démarre.
      */
     public static synchronized void init() {
         if (emf == null || !emf.isOpen()) {
-            try {
-                String puName = getEnvOrProperty("PERSISTENCE_UNIT", DEFAULT_PERSISTENCE_UNIT);
+            String puName = getEnvOrProperty("PERSISTENCE_UNIT", DEFAULT_PERSISTENCE_UNIT);
 
-                // Si DB_URL est définie (ex: environnement Kubernetes) et que l'unité par défaut est active,
-                // on bascule automatiquement sur ucadCotisationsPU si l'URL pointe vers postgresql
-                String dbUrl = getEnvOrProperty("DB_URL", null);
-                if (DEFAULT_PERSISTENCE_UNIT.equals(puName) && dbUrl != null && dbUrl.contains("postgresql")) {
-                    puName = "ucadCotisationsPU";
-                }
-
-                LOGGER.info("Initialisation de l'EntityManagerFactory (PU: " + puName + ")...");
-
-                java.util.Map<String, Object> overrides = new java.util.HashMap<>();
-                if (dbUrl != null && !dbUrl.isBlank()) {
-                    overrides.put("jakarta.persistence.jdbc.url", dbUrl);
-                }
-                String dbUser = getEnvOrProperty("DB_USER", null);
-                if (dbUser != null && !dbUser.isBlank()) {
-                    overrides.put("jakarta.persistence.jdbc.user", dbUser);
-                }
-                String dbPassword = getEnvOrProperty("DB_PASSWORD", null);
-                if (dbPassword != null && !dbPassword.isBlank()) {
-                    overrides.put("jakarta.persistence.jdbc.password", dbPassword);
-                }
-
-                emf = overrides.isEmpty()
-                        ? Persistence.createEntityManagerFactory(puName)
-                        : Persistence.createEntityManagerFactory(puName, overrides);
-
-                LOGGER.info("EntityManagerFactory initialisée avec succès.");
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Échec de l'initialisation JPA", e);
-                throw new RuntimeException("Impossible de créer l'EntityManagerFactory", e);
+            // Si DB_URL est définie et pointe vers postgresql, on bascule automatiquement sur ucadCotisationsPU
+            String dbUrl = getEnvOrProperty("DB_URL", null);
+            if (DEFAULT_PERSISTENCE_UNIT.equals(puName) && dbUrl != null && dbUrl.contains("postgresql")) {
+                puName = "ucadCotisationsPU";
             }
+
+            LOGGER.info("Initialisation de l'EntityManagerFactory (PU: " + puName + ")...");
+
+            java.util.Map<String, Object> overrides = new java.util.HashMap<>();
+            if (dbUrl != null && !dbUrl.isBlank()) {
+                overrides.put("jakarta.persistence.jdbc.url", dbUrl);
+            }
+            String dbUser = getEnvOrProperty("DB_USER", null);
+            if (dbUser != null && !dbUser.isBlank()) {
+                overrides.put("jakarta.persistence.jdbc.user", dbUser);
+            }
+            String dbPassword = getEnvOrProperty("DB_PASSWORD", null);
+            if (dbPassword != null && !dbPassword.isBlank()) {
+                overrides.put("jakarta.persistence.jdbc.password", dbPassword);
+            }
+
+            Exception lastException = null;
+            for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                try {
+                    emf = overrides.isEmpty()
+                            ? Persistence.createEntityManagerFactory(puName)
+                            : Persistence.createEntityManagerFactory(puName, overrides);
+
+                    LOGGER.info("EntityManagerFactory initialisée avec succès (tentative " + attempt + ").");
+                    return;
+                } catch (Exception e) {
+                    lastException = e;
+                    LOGGER.log(Level.WARNING, "Tentative " + attempt + "/" + MAX_RETRIES
+                            + " d'initialisation JPA échouée. Attente de la base de données... (" + e.getMessage() + ")");
+                    if (attempt < MAX_RETRIES) {
+                        try {
+                            Thread.sleep(RETRY_DELAY_MS);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            LOGGER.log(Level.SEVERE, "Échec de l'initialisation JPA après " + MAX_RETRIES + " tentatives", lastException);
+            throw new RuntimeException("Impossible de créer l'EntityManagerFactory", lastException);
         }
     }
 
@@ -73,9 +91,12 @@ public class JpaUtil {
     }
 
     /**
-     * Retourne un EntityManager. Chaque appelant doit le fermer après usage.
+     * Retourne un EntityManager. Tente une réinitialisation paresseuse si nécessaire.
      */
     public static EntityManager getEntityManager() {
+        if (emf == null || !emf.isOpen()) {
+            init();
+        }
         if (emf == null || !emf.isOpen()) {
             throw new IllegalStateException("EntityManagerFactory non initialisée. Appelez JpaUtil.init() d'abord.");
         }
@@ -101,6 +122,9 @@ public class JpaUtil {
      * L'appelant est responsable de fermer la connexion après usage.
      */
     public static Connection getConnection() throws Exception {
+        if (emf == null || !emf.isOpen()) {
+            init();
+        }
         if (emf == null || !emf.isOpen()) {
             throw new IllegalStateException("EntityManagerFactory non initialisée.");
         }

@@ -37,13 +37,25 @@ public class AppConfig {
         return instance;
     }
 
+    private String getEnvOrProp(String envKey, String propKey, String defaultValue) {
+        String val = System.getenv(envKey);
+        if (val != null && !val.isBlank()) {
+            return val;
+        }
+        val = System.getProperty(envKey);
+        if (val != null && !val.isBlank()) {
+            return val;
+        }
+        return props.getProperty(propKey, defaultValue);
+    }
+
     // -------------------------------------------------------------------------
     // Base de données
     // -------------------------------------------------------------------------
-    public String getDbDriver()   { return props.getProperty("db.driver"); }
-    public String getDbUrl()      { return props.getProperty("db.url"); }
-    public String getDbUser()     { return props.getProperty("db.user"); }
-    public String getDbPassword() { return props.getProperty("db.password", ""); }
+    public String getDbDriver()   { return getEnvOrProp("DB_DRIVER", "db.driver", "com.mysql.cj.jdbc.Driver"); }
+    public String getDbUrl()      { return getEnvOrProp("DB_URL", "db.url", "jdbc:mysql://db:3306/cotisations_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"); }
+    public String getDbUser()     { return getEnvOrProp("DB_USER", "db.user", "root"); }
+    public String getDbPassword() { return getEnvOrProp("DB_PASSWORD", "db.password", "votre_mot_de_passe"); }
 
     // -------------------------------------------------------------------------
     // Paramètres métier
@@ -63,16 +75,17 @@ public class AppConfig {
     // -------------------------------------------------------------------------
     // Configuration SMTP
     // -------------------------------------------------------------------------
-    public String getSmtpHost()        { return props.getProperty("mail.smtp.host"); }
-    public int    getSmtpPort()        { return Integer.parseInt(props.getProperty("mail.smtp.port", "587")); }
-    public String getSmtpUsername()    { return props.getProperty("mail.smtp.username"); }
-    public String getSmtpPassword()    { return props.getProperty("mail.smtp.password"); }
-    public String getMailFrom()        { return props.getProperty("mail.from"); }
-    public boolean isSmtpAuth()        { return Boolean.parseBoolean(props.getProperty("mail.smtp.auth", "true")); }
-    public boolean isSmtpStarttls()    { return Boolean.parseBoolean(props.getProperty("mail.smtp.starttls.enable", "true")); }
+    public String getSmtpHost()        { return getEnvOrProp("SMTP_HOST", "mail.smtp.host", "sandbox.smtp.mailtrap.io"); }
+    public int    getSmtpPort()        { return Integer.parseInt(getEnvOrProp("SMTP_PORT", "mail.smtp.port", "587")); }
+    public String getSmtpUsername()    { return getEnvOrProp("SMTP_USERNAME", "mail.smtp.username", ""); }
+    public String getSmtpPassword()    { return getEnvOrProp("SMTP_PASSWORD", "mail.smtp.password", ""); }
+    public String getMailFrom()        { return getEnvOrProp("SMTP_FROM", "mail.from", "noreply@ucad.sn"); }
+    public boolean isSmtpAuth()        { return Boolean.parseBoolean(getEnvOrProp("SMTP_AUTH", "mail.smtp.auth", "true")); }
+    public boolean isSmtpStarttls()    { return Boolean.parseBoolean(getEnvOrProp("SMTP_STARTTLS", "mail.smtp.starttls.enable", "true")); }
 
     /** Récupère une propriété arbitraire. */
     public String getProperty(String key, String defaultValue) {
-        return props.getProperty(key, defaultValue);
+        String envKey = key.toUpperCase().replace('.', '_');
+        return getEnvOrProp(envKey, key, defaultValue);
     }
 }

@@ -28,7 +28,10 @@
                 <div style="width:72px;height:72px;background:var(--brand-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;font-weight:700;margin:0 auto 12px">
                     ${membre.prenom.charAt(0)}
                 </div>
-                <h3 style="font-size:18px;font-weight:700;color:var(--text-main)">${membre.nomComplet}</h3>
+                <h3 style="font-size:18px;font-weight:700;color:var(--text-main);display:flex;align-items:center;justify-content:center;gap:8px">
+                    ${membre.nomComplet}
+                    <span style="font-size:12px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:6px;font-weight:600">ID #${membre.id}</span>
+                </h3>
                 <c:choose>
                     <c:when test="${membre.statut.name() == 'ACTIF'}"><span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Actif</span></c:when>
                     <c:when test="${membre.statut.name() == 'SUSPENDU'}"><span class="badge badge-warning">Suspendu</span></c:when>
@@ -36,6 +39,10 @@
                 </c:choose>
             </div>
             <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0">
+                    <span class="text-muted"><i class="bi bi-hash"></i> Identifiant Membre</span>
+                    <span style="font-weight:600;color:var(--brand-primary)">#${membre.id}</span>
+                </div>
                 <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0">
                     <span class="text-muted"><i class="bi bi-envelope-fill"></i> Email</span>
                     <span style="font-weight:500">${membre.utilisateur.email}</span>

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" role="img" aria-label="Logo UCAD Cotisations">
+  <defs>
+    <!-- Ombre douce et élégante -->
+    <filter id="ucadShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+    
+    <!-- Dégradé sobre institutionnel or / ambré pour l'emblème -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Écusson / Blason universitaire -->
+  <path d="M 60 8 
+           C 88 8, 106 14, 106 32 
+           C 106 72, 85 98, 60 114 
+           C 35 98, 14 72, 14 32 
+           C 14 14, 32 8, 60 8 Z" 
+        fill="url(#shieldGradient)" 
+        stroke="#d97706" 
+        stroke-width="3"
+        filter="url(#ucadShadow)" />
+
+  <!-- Liseré intérieur délicat -->
+  <path d="M 60 15 
+           C 83 15, 99 20, 99 35 
+           C 99 69, 80 92, 60 106 
+           C 40 92, 21 69, 21 35 
+           C 21 20, 37 15, 60 15 Z" 
+        fill="none" 
+        stroke="rgba(251, 191, 36, 0.4)" 
+        stroke-width="1.2" 
+        stroke-dasharray="3,2" />
+
+  <!-- Couronne de laurier (symbolique d'excellence académique) -->
+  <!-- Rameau gauche -->
+  <path d="M 33 66 C 30 52, 36 38, 44 28" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="33" cy="62" r="2.2" fill="#fbbf24"/>
+  <circle cx="31" cy="50" r="2.2" fill="#fbbf24"/>
+  <circle cx="35" cy="39" r="2.2" fill="#fbbf24"/>
+  <circle cx="43" cy="30" r="2.2" fill="#fbbf24"/>
+
+  <!-- Rameau droit -->
+  <path d="M 87 66 C 90 52, 84 38, 76 28" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="87" cy="62" r="2.2" fill="#fbbf24"/>
+  <circle cx="89" cy="50" r="2.2" fill="#fbbf24"/>
+  <circle cx="85" cy="39" r="2.2" fill="#fbbf24"/>
+  <circle cx="77" cy="30" r="2.2" fill="#fbbf24"/>
+
+  <!-- Livre ouvert du savoir (symbole de Cheikh Anta Diop / Université) -->
+  <g transform="translate(0, 5)">
+    <!-- Page gauche -->
+    <path d="M 60 48 C 53 45, 42 45, 36 48 L 36 64 C 42 61, 53 61, 60 64 Z" 
+          fill="#f8fafc" stroke="#0f172a" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- Page droite -->
+    <path d="M 60 48 C 67 45, 78 45, 84 48 L 84 64 C 78 61, 67 61, 60 64 Z" 
+          fill="#f8fafc" stroke="#0f172a" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- Tranche centrale / reliure -->
+    <line x1="60" y1="48" x2="60" y2="65" stroke="#d97706" stroke-width="2"/>
+    <!-- Lignes d'écriture stylisées -->
+    <line x1="41" y1="52" x2="55" y2="52" stroke="#94a3b8" stroke-width="1" stroke-linecap="round"/>
+    <line x1="41" y1="56" x2="53" y2="56" stroke="#94a3b8" stroke-width="1" stroke-linecap="round"/>
+    <line x1="65" y1="52" x2="79" y2="52" stroke="#94a3b8" stroke-width="1" stroke-linecap="round"/>
+    <line x1="67" y1="56" x2="79" y2="56" stroke="#94a3b8" stroke-width="1" stroke-linecap="round"/>
+  </g>
+
+  <!-- Pièce de monnaie / Sceau de cotisation (symbolisant la gestion financière) -->
+  <g transform="translate(60, 83)">
+    <!-- Pièce centrale en or -->
+    <circle cx="0" cy="0" r="14" fill="url(#goldGradient)" stroke="#fef3c7" stroke-width="1.5" filter="url(#ucadShadow)"/>
+    <circle cx="0" cy="0" r="11" fill="none" stroke="#78350f" stroke-width="0.8" stroke-dasharray="2,1.5"/>
+    <!-- Symbole monétaire / balance ou devise franc CFA stylisé -->
+    <text x="0" y="4.5" 
+          font-family="'Inter', -apple-system, sans-serif" 
+          font-size="9" 
+          font-weight="800" 
+          fill="#451a03" 
+          text-anchor="middle" 
+          letter-spacing="-0.5">FCFA</text>
+  </g>
+
+  <!-- Étoile du Sénégal / Excellence au sommet -->
+  <polygon points="60,18 62.5,23.5 68,24 64,28 65,34 60,31 55,34 56,28 52,24 57.5,23.5" 
+           fill="#fbbf24" stroke="#d97706" stroke-width="0.8"/>
+</svg>
+

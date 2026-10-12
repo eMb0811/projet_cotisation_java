@@ -27,6 +27,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="<%= ctx %>/assets/img/ucad-logo.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
@@ -187,11 +188,29 @@
         .sidebar-brand {
             background: var(--sidebar-header);
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            min-height: 64px;
+            min-height: 70px;
             display: flex;
             align-items: center;
             gap: 12px;
             transition: padding 0.2s ease;
+            position: relative;
+        }
+
+        .sidebar-brand::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #d97706, transparent);
+        }
+
+        .sidebar-brand-img {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
         .sidebar-brand .brand-text {
@@ -201,18 +220,21 @@
 
         .sidebar-brand h1 {
             color: #ffffff;
-            font-size: 14px;
+            font-size: 14.5px;
             font-weight: 700;
             line-height: 1.2;
             margin: 0;
+            letter-spacing: -0.2px;
         }
 
         .sidebar-brand span {
-            color: rgba(255,255,255,0.6);
+            color: #fbbf24;
             font-size: 11px;
-            font-weight: 400;
+            font-weight: 500;
             display: block;
-            margin-top: 1px;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
         }
 
         /* Zone Profil Utilisateur dans Sidebar */
@@ -415,13 +437,22 @@
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+        }
+
+        .membre-brand-img {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
 
         .membre-brand-sub {
             font-size: 11px;
-            font-weight: 400;
-            color: rgba(255,255,255,0.6);
+            font-weight: 500;
+            color: #99f6e4;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
         }
 
         .membre-user-area {
@@ -526,10 +557,23 @@
         /* Cards */
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid var(--border-ui);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
             margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-lt));
+            opacity: 0.9;
         }
 
         .card-header {
@@ -539,8 +583,8 @@
             align-items: center;
             justify-content: space-between;
             background: #ffffff;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
         }
 
         .card-header h5 {
@@ -551,26 +595,30 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            letter-spacing: -0.2px;
         }
 
-        .card-body { padding: 20px; }
+        .card-body { padding: 22px 20px; }
 
         /* KPI */
         .kpi-card {
             background: #ffffff;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 20px;
             border: 1px solid var(--border-ui);
             display: flex;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            transition: all 0.2s ease;
+            position: relative;
+            border-left: 4px solid var(--border-hover);
         }
 
         .kpi-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            border-left-color: var(--brand-primary);
         }
 
         .kpi-icon {
@@ -725,16 +773,132 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
 
+        /* Bouton Menu Mobile (Admin) */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-ui);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(2px);
+            z-index: 150;
+        }
+
         @media (max-width: 1024px) {
             .grid-4 { grid-template-columns: repeat(2, 1fr); }
             .grid-3 { grid-template-columns: repeat(2, 1fr); }
+            .page-body { padding: 20px; }
+            .topbar { padding: 0 20px; }
         }
 
         @media (max-width: 768px) {
-            html[data-theme="admin"] .sidebar { transform: translateX(-100%); }
-            html[data-theme="admin"] .main-content { margin-left: 0; }
+            .mobile-menu-btn { display: inline-flex; }
+            
+            html[data-theme="admin"] .sidebar {
+                transform: translateX(-100%);
+                width: 260px !important;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            html[data-theme="admin"] .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            html[data-theme="admin"] .sidebar.mobile-open ~ .sidebar-overlay {
+                display: block;
+            }
+
+            html[data-theme="admin"] .sidebar .brand-text,
+            html[data-theme="admin"] .sidebar .sidebar-user-info,
+            html[data-theme="admin"] .sidebar .nav-section,
+            html[data-theme="admin"] .sidebar .nav-label,
+            html[data-theme="admin"] .sidebar .footer-label {
+                display: block !important;
+            }
+
+            html[data-theme="admin"] .sidebar .nav-item a {
+                justify-content: flex-start !important;
+                padding: 12px 20px !important;
+            }
+
+            html[data-theme="admin"] .sidebar .sidebar-user {
+                justify-content: flex-start !important;
+                padding: 12px 14px !important;
+                margin: 12px 10px 4px !important;
+            }
+
+            html[data-theme="admin"] .sidebar .sidebar-footer a {
+                justify-content: flex-start !important;
+                padding: 0 !important;
+            }
+
+            html[data-theme="admin"] .sidebar .sidebar-brand {
+                justify-content: flex-start !important;
+                padding: 18px !important;
+            }
+
+            html[data-theme="admin"] .main-content { margin-left: 0 !important; }
+            
             .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-            .membre-nav-bar { overflow-x: auto; }
+            
+            .topbar {
+                padding: 0 16px;
+                height: 58px;
+            }
+
+            .topbar-title {
+                font-size: 15px;
+            }
+
+            .topbar-actions .badge-role-top {
+                display: none;
+            }
+
+            .page-body {
+                padding: 16px 12px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .membre-topbar-top {
+                padding: 0 16px;
+                height: 58px;
+            }
+
+            .membre-brand {
+                font-size: 14px;
+            }
+
+            .membre-nav-bar {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .membre-nav-bar a {
+                padding: 10px 14px;
+                font-size: 12.5px;
+            }
         }
     </style>
 </head>
@@ -744,7 +908,7 @@
 <!-- =========== SIDEBAR ADMIN (Auto-expansion directe au survol) =========== -->
 <nav class="sidebar" id="adminSidebar">
     <div class="sidebar-brand">
-        <i class="bi bi-mortarboard-fill" style="color:#f59e0b;flex-shrink:0;font-size:22px"></i>
+        <img src="<%= ctx %>/assets/img/ucad-logo.svg" alt="Blason UCAD" class="sidebar-brand-img">
         <div class="brand-text">
             <h1>UCAD Cotisations</h1>
             <span>Espace Administration</span>
@@ -798,11 +962,17 @@
         </a>
     </div>
 </nav>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
 
 <div class="main-content" id="mainContent">
     <header class="topbar">
-        <div class="topbar-title">
-            <c:out value="${pageTitle != null ? pageTitle : 'UCAD Cotisations'}"/>
+        <div style="display:flex;align-items:center">
+            <button type="button" class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Menu">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="topbar-title">
+                <c:out value="${pageTitle != null ? pageTitle : 'UCAD Cotisations'}"/>
+            </div>
         </div>
         <div class="topbar-actions">
             <span class="badge-role-top">🛡️ Mode Administrateur</span>
@@ -820,12 +990,14 @@
     <header class="topbar">
         <!-- Ligne supérieure : logo + user cliquable pour profil -->
         <div class="membre-topbar-top">
-            <div>
-                <div class="membre-brand">
-                    <i class="bi bi-mortarboard-fill" style="color:#2dd4bf"></i>
-                    UCAD Cotisations
+            <div style="display:flex;align-items:center;gap:12px">
+                <img src="<%= ctx %>/assets/img/ucad-logo.svg" alt="Blason UCAD" class="membre-brand-img">
+                <div>
+                    <div class="membre-brand">
+                        UCAD Cotisations
+                    </div>
+                    <div class="membre-brand-sub">Espace Adhérent</div>
                 </div>
-                <div class="membre-brand-sub">Espace Adhérent</div>
             </div>
             <div class="membre-user-area">
                 <a href="<%= ctx %>/profil" class="membre-user-btn" title="Accéder à mon profil">

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion — UCAD Cotisations</title>
     <meta name="description" content="Connectez-vous à l'application de gestion des cotisations UCAD">
+    <% String ctx = request.getContextPath(); %>
+    <link rel="icon" type="image/svg+xml" href="<%= ctx %>/assets/img/ucad-logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -55,18 +57,17 @@
             margin-bottom: 28px;
         }
 
-        .logo-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            border-radius: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: #ffffff;
-            margin-bottom: 12px;
-            box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
+        .logo-emblem {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 14px;
+            display: block;
+            filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.2));
+            transition: transform 0.2s ease;
+        }
+
+        .logo-emblem:hover {
+            transform: scale(1.04);
         }
 
         .login-logo h1 {
@@ -234,7 +235,7 @@
 
 <div class="login-container">
     <div class="login-logo">
-        <div class="logo-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <img src="<%= ctx %>/assets/img/ucad-logo.svg" alt="Blason UCAD" class="logo-emblem">
         <h1>UCAD Cotisations</h1>
         <p>Système de gestion des cotisations et amendes</p>
     </div>

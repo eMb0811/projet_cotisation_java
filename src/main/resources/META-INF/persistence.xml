@@ -34,9 +34,9 @@
                 - User/Password : A ajuster selon votre installation MySQL
             -->
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
-			<property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/cotisations_db?createDatabaseIfNotExist=true&amp;useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"/>
+			<property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://db:3306/cotisations_db?createDatabaseIfNotExist=true&amp;useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"/>
 			<property name="jakarta.persistence.jdbc.user" value="root"/>
-			<property name="jakarta.persistence.jdbc.password" value="08111303"/>
+			<property name="jakarta.persistence.jdbc.password" value="votre_mot_de_passe"/>
 
             <!-- 
                 ==========================================================

@@ -44,7 +44,7 @@
             <table id="membresTable">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>ID</th>
                         <th>Nom complet</th>
                         <th>Email</th>
                         <th>Téléphone</th>
@@ -54,9 +54,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                <c:forEach var="m" items="${membres}" varStatus="s">
+                <c:forEach var="m" items="${membres}">
                     <tr>
-                        <td class="text-muted">${s.index + 1}</td>
+                        <td style="font-weight:600;color:var(--brand-primary);font-size:13px">#${m.id}</td>
                         <td>
                             <div style="display:flex;align-items:center;gap:10px">
                                 <div style="width:34px;height:34px;background:var(--brand-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700;flex-shrink:0">

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <!-- Fond officiel Orange Money carré arrondi -->
+  <rect width="120" height="120" rx="24" fill="#FF7900"/>
+  <!-- Zone centrale contrastée noire élégante -->
+  <rect x="18" y="18" width="84" height="84" rx="16" fill="#000000"/>
+  <!-- Typographie institutionnelle Orange Money -->
+  <text x="60" y="60" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="32" fill="#FF7900" text-anchor="middle" letter-spacing="-1">OM</text>
+  <text x="60" y="80" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="11" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">MONEY</text>
+</svg>
