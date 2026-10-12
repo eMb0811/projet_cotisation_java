@@ -61,17 +61,27 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:latest
 
+      - name: Récupération du jeton ECR pour K3s
+        id: ecr-token
+        run: |
+          echo "token=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})" >> $GITHUB_OUTPUT
+
       - name: Déploiement sur le cluster K3s via SSH
         uses: appleboy/ssh-action@master
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ucad-cotisations-app
           IMAGE_TAG: ${{ github.sha }}
+          ECR_TOKEN: ${{ steps.ecr-token.outputs.token }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: REGISTRY,REPOSITORY,IMAGE_TAG
+          envs: REGISTRY,REPOSITORY,IMAGE_TAG,ECR_TOKEN
           script: |
+            kubectl delete secret ecr-secret --ignore-not-found
+            kubectl create secret docker-registry ecr-secret --docker-server=$REGISTRY --docker-username=AWS --docker-password="$ECR_TOKEN"
+            kubectl delete pods --field-selector=status.phase=Failed --ignore-not-found
             kubectl set image deployment/ucad-cotisations-deployment tomcat-app=$REGISTRY/$REPOSITORY:$IMAGE_TAG
-            kubectl rollout status deployment/ucad-cotisations-deployment
+            kubectl rollout status deployment/ucad-cotisations-deployment --timeout=300s
+            sudo k3s crictl rmi --prune || true
